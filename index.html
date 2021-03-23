@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <title>Socket.IO chat</title>
+    <style>
+      
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: rgb(206, 206, 206);
+      }
+
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages li {
+        padding: 0.5rem 1rem;
+      }
+      #messages li {
+        margin: 5px 0;
+        background: #31326f;
+        color: #d8ebe4;
+      }
+      .info {
+        background-color: #282846;
+        color: #fed049;
+      }
+
+      .join-alert{
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        transition: 0.5s ease;
+        display: none;
+      }
+
+      .leave-alert{
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        transition: 0.5s ease;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12 info position-sticky top-0">
+            <div class="p-2 d-flex align-items-center justify-content-between">
+              <h2>Crusher Chat Room</h2>
+              <div class="d-flex gap-3">
+                <div>
+                  <a href="https://tr.linkedin.com/in/bar%C4%B1%C5%9F-demirezen-655879190" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="white" height="36" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </a>
+                </div>
+                <div>
+                  <a href="https://github.com/barisdemirezen" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="white" height="36" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-4.466 19.59c-.405.078-.534-.171-.534-.384v-2.195c0-.747-.262-1.233-.55-1.481 1.782-.198 3.654-.875 3.654-3.947 0-.874-.312-1.588-.823-2.147.082-.202.356-1.016-.079-2.117 0 0-.671-.215-2.198.82-.64-.18-1.324-.267-2.004-.271-.68.003-1.364.091-2.003.269-1.528-1.035-2.2-.82-2.2-.82-.434 1.102-.16 1.915-.077 2.118-.512.56-.824 1.273-.824 2.147 0 3.064 1.867 3.751 3.645 3.954-.229.2-.436.552-.508 1.07-.457.204-1.614.557-2.328-.666 0 0-.423-.768-1.227-.825 0 0-.78-.01-.055.487 0 0 .525.246.889 1.17 0 0 .463 1.428 2.688.944v1.489c0 .211-.129.459-.528.385-3.18-1.057-5.472-4.056-5.472-7.59 0-4.419 3.582-8 8-8s8 3.581 8 8c0 3.533-2.289 6.531-5.466 7.59z"/></svg>
+                </a>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          <div class="col-12 p-0 mt-2">
+            <ul id="messages"></ul>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container-fluid position-fixed bottom-0 bg-dark"
+      >
+        <div class="row">
+          <div class="col-12 py-3">
+            <form id="form" action="">
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="input"
+                  placeholder="Write a message and hit enter"
+                  autocomplete="off"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-success join-alert" role="alert">
+      Joined to chat
+    </div>
+
+    <div class="alert alert-danger leave-alert" role="alert">
+      Leaved the chat
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+
+      let userName;
+      while(!userName){
+        userName = prompt("Please enter your username");
+      }
+        
+      //let userName = "Barışx";
+      let socket = io();
+
+      let messages = document.querySelector("#messages");
+      let form = document.querySelector("#form");
+      let input = document.querySelector("#input");
+      let joinAlert = document.querySelector(".join-alert");
+      let leaveAlert = document.querySelector(".leave-alert");
+      let activeCount = document.querySelector("#activeCount");
+
+      socket.emit("userJoined", userName);
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        let msg = {user: userName, text : input.value};
+        if (input.value) {
+          socket.emit("chat message", msg);
+          input.value = "";
+        }
+      });
+
+      socket.on("chat message", function (msg) {
+        var item = document.createElement("li");
+        item.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
+        item.classList.add("text-break");
+        if(userName != msg.user)
+          item.style.background = "#810000";
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on("joined", function (user) {
+        joinAlert.innerHTML = `<b>${user}</b> joined to chat`;
+        joinAlert.style.display = "block";
+        setTimeout(() => {
+          joinAlert.style.display = "none";
+        }, 2500);
+      });
+
+      socket.on("leaved", function (user) {
+        leaveAlert.innerHTML = `<b>${user}</b> leaved the chat`;
+        leaveAlert.style.display = "block";
+        setTimeout(() => {
+          leaveAlert.style.display = "none";
+        }, 2500);
+      });
+
+    </script>
+  </body>
+</html>
