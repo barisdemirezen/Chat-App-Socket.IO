@@ -33,6 +33,21 @@
         background: #31326f;
         color: #d8ebe4;
       }
+
+      #userlist {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #userlist li {
+        padding: 0.5rem 1rem;
+      }
+      #userlist li {
+        margin: 5px 0;
+        background: #000000;
+        color: #d8ebe4;
+      }
+
       .info {
         background-color: #282846;
         color: #fed049;
@@ -74,11 +89,15 @@
                 </a>
                 </div>
               </div>
-            </div>
-            
+            </div>            
           </div>
-          <div class="col-12 p-0 mt-2">
+          <div class="col-10 p-0 mt-2">
             <ul id="messages"></ul>
+          </div>
+          <div class="col-2 mt-2">
+            <ul id="userlist">
+              
+            </ul>
           </div>
         </div>
       </div>
@@ -115,15 +134,16 @@
 
     <script>
 
+      let socket = io();
+
       let userName;
       while(!userName){
         userName = prompt("Please enter your username");
-      }
         
-      //let userName = "Barışx";
-      let socket = io();
+      }
 
       let messages = document.querySelector("#messages");
+      let userlist = document.querySelector("#userlist");
       let form = document.querySelector("#form");
       let input = document.querySelector("#input");
       let joinAlert = document.querySelector(".join-alert");
@@ -132,6 +152,8 @@
 
       socket.emit("userJoined", userName);
 
+      socket.emit("updateUsers");
+      
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         let msg = {user: userName, text : input.value};
@@ -165,6 +187,17 @@
         setTimeout(() => {
           leaveAlert.style.display = "none";
         }, 2500);
+      });
+
+      socket.on("userList", function (connected) {
+        console.log(connected);
+        userlist.innerHTML = ' ';
+        connected.forEach(function(e){
+          var item = document.createElement("li");
+          item.innerHTML = e.name;
+          userlist.appendChild(item);
+        }) 
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
     </script>
