@@ -153,7 +153,7 @@
       socket.emit("userJoined", userName);
 
       socket.emit("updateUsers");
-      
+
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         let msg = {user: userName, text : input.value};
@@ -190,7 +190,6 @@
       });
 
       socket.on("userList", function (connected) {
-        console.log(connected);
         userlist.innerHTML = ' ';
         connected.forEach(function(e){
           var item = document.createElement("li");
