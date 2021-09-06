@@ -68,6 +68,32 @@
         transition: 0.5s ease;
         display: none;
       }
+
+      .right-0 {
+        right: 0;
+      }
+
+      .position-sm-fixed {
+        position: fixed;
+      }
+
+      .p-sm-0 {
+        padding: inherit;
+      }
+
+      @media (max-width: 576px)
+      {
+        .right-0 {
+          left: 0;
+        }
+        .position-sm-fixed {
+          position: inherit;
+        }
+
+        .p-smx-0 {
+          padding: 0
+        }
+      }
     </style>
   </head>
   <body>
@@ -91,10 +117,12 @@
               </div>
             </div>            
           </div>
-          <div class="col-10 p-0 mt-2">
+        </div>
+        <div class="row flex-column-reverse flex-row-reverse flex-sm-row">
+          <div class="col-12 col-sm-10 p-0 mt-2 pb-5">
             <ul id="messages"></ul>
           </div>
-          <div class="col-2 mt-2">
+          <div class="col-12 col-sm-2 mt-2 position-sm-fixed right-0 p-smx-0">
             <ul id="userlist">
               
             </ul>
@@ -122,11 +150,11 @@
       </div>
     </div>
 
-    <div class="alert alert-success join-alert" role="alert">
+    <div class="alert alert-success join-alert position-fixed" role="alert">
       Joined to chat
     </div>
 
-    <div class="alert alert-danger leave-alert" role="alert">
+    <div class="alert alert-danger leave-alert position-fixed" role="alert">
       Leaved the chat
     </div>
 
@@ -182,6 +210,11 @@
       });
 
       socket.on("leaved", function (user) {
+        var item = document.createElement("li");
+        item.innerHTML = `${user} leaved the chat`;
+        item.classList.add("text-break");
+        item.style.background = "#000000";
+        messages.appendChild(item);
         leaveAlert.innerHTML = `<b>${user}</b> leaved the chat`;
         leaveAlert.style.display = "block";
         setTimeout(() => {
