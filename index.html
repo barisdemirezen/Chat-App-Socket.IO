@@ -151,7 +151,7 @@
       <div class="container-fluid position-fixed bottom-0 bg-dark">
         <form id="form" action="">
           <div class="row align-items-center">
-            <div class="col-11 py-3">
+            <div class="col-12 py-3">
               <div class="input-group">
                 <input
                   type="text"
@@ -162,7 +162,7 @@
                 />
               </div>
             </div>
-            <div class="col-1">
+            <div class="col-1 d-none">
               <input
                 id="image-input"
                 type="file"
@@ -228,7 +228,10 @@
 
       socket.on('chat message', function (msg) {
         var item = document.createElement('li');
-        item.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
+        item.innerHTML = `<b>${msg.user}:</b>`;
+        var message = document.createElement('span');
+        message.innerText = ` ${msg.text}`
+        item.append(message);
         if (msg.image) {
           item.innerHTML += `</br> <img src="${msg.image}"/>`;
         }
